@@ -17,7 +17,7 @@ namespace JogoDaVeia
             RunGame();
         }
 
-        private static void TryWinConditions(List<List<char>> gameBoard, bool isplayer1)
+        private static bool TryWinConditions(List<List<char>> gameBoard, bool isplayer1)
         {
             char x = ' ';
             if (isplayer1)
@@ -48,15 +48,16 @@ namespace JogoDaVeia
                     {
                         Program program = new Program();
                         program.Render();
-                        Victory(player1.Name);
+                        return true;
                     } else
                     {
                         Program program = new Program();
                         program.Render();
-                        Victory(player2.Name);
+                        return false;
                     }
                 }
             }
+            return false;
         }
 
         private static List<string> GetCurrentBoard(List<List<char>> gameBoard, char x)
@@ -109,6 +110,7 @@ namespace JogoDaVeia
 
         static void RunGame()
         {
+            Console.Clear();
             Program program = new Program();
             List<string> usedCoordinates = new List<string>();
             //create new gameboard at game start
@@ -123,14 +125,25 @@ namespace JogoDaVeia
             Console.Clear();
             Console.Write("Jogador 2\nNome:");
             player2 = new Player(Console.ReadLine());
-            bool ganhou = false;
+            int turn = 0;
             do
             {
                 program.Render();
                 Turn(gameBoard, usedCoordinates);
-                TryWinConditions(gameBoard, player1Turn);
+                turn++;
+                program.Render();
+                if (TryWinConditions(gameBoard, player1Turn))
+                {
+                    Victory(player1.Name);
+                    break;
+                }
+                if (turn == 9)
+                {
+                    Draw();
+                    break;
+                }
                 player1Turn = !player1Turn;
-            } while (!ganhou);
+            } while (true);
         }
 
         void Render()
@@ -191,6 +204,17 @@ namespace JogoDaVeia
         static void Victory(string winner)
         {
             Console.WriteLine($"*******************{winner} ganhou!******************" +
+                $"\n1-Jogar novamente   2-Sair");
+            string resposta = Console.ReadLine();
+            if (resposta == "1")
+            {
+                RunGame();
+            }
+        }
+
+        static void Draw()
+        {
+            Console.WriteLine("*******************Empate!******************" +
                 $"\n1-Jogar novamente   2-Sair");
             string resposta = Console.ReadLine();
             if (resposta == "1")
