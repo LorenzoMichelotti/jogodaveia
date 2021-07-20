@@ -17,35 +17,91 @@ namespace JogoDaVeia
             RunGame();
         }
 
-        private static void TryWinConditions(List<List<char>> gameBoard, bool player1)
+        private static void TryWinConditions(List<List<char>> gameBoard, bool isplayer1)
         {
             char x = ' ';
-            if (player1)
+            if (isplayer1)
             {
                 x = 'X';
             }
             else
             {
                 x = 'O';
+                isplayer1 = false;
             }
 
-            GetCurrentBoard(gameBoard);
-
+            List<string> currentPlayerPositions = GetCurrentBoard(gameBoard, x);
             List<string> WinConditions = new List<string>()
             {
                 "012","345","678","036","147","258","048","246"
             };
-            //bool win = winConditions.Any(board => board == gameBoard);
+            foreach (string winCondition in WinConditions)
+            {
+                string a = winCondition.Substring(0,1);
+                string b = winCondition.Substring(1,1);
+                string c = winCondition.Substring(2,1);
+                if (currentPlayerPositions.Contains(a) &
+                    currentPlayerPositions.Contains(b) &
+                    currentPlayerPositions.Contains(c))
+                {
+                    if (isplayer1)
+                    {
+                        Program program = new Program();
+                        program.Render();
+                        Victory(player1.Name);
+                    } else
+                    {
+                        Program program = new Program();
+                        program.Render();
+                        Victory(player2.Name);
+                    }
+                }
+            }
         }
 
-        private static List<string> GetCurrentBoard(List<List<char>> gameBoard)
+        private static List<string> GetCurrentBoard(List<List<char>> gameBoard, char x)
         {
             List<string> playerMoves = new List<string>();
             for (int row = 0; row < gameBoard.Count; row++)
             {
                 for (int collumn = 0; collumn < gameBoard[row].Count; collumn++)
                 {
-                    Console.Write("| " + gameBoard[row][collumn] + " |");
+                    if(gameBoard[row][collumn] == x)
+                    {
+                        string position = row.ToString() + collumn.ToString();
+                        switch (position)
+                        {
+                            case "00":
+                                playerMoves.Add("0");
+                                break;
+                            case "01":
+                                playerMoves.Add("1");
+                                break;
+                            case "02":
+                                playerMoves.Add("2");
+                                break;
+                            case "10":
+                                playerMoves.Add("3");
+                                break;
+                            case "11":
+                                playerMoves.Add("4");
+                                break;
+                            case "12":
+                                playerMoves.Add("5");
+                                break;
+                            case "20":
+                                playerMoves.Add("6");
+                                break;
+                            case "21":
+                                playerMoves.Add("7");
+                                break;
+                            case "22":
+                                playerMoves.Add("8");
+                                break;
+                            default:
+                                break;
+                        }
+                    }
                 }
             }
             return playerMoves;
@@ -67,13 +123,14 @@ namespace JogoDaVeia
             Console.Clear();
             Console.Write("Jogador 2\nNome:");
             player2 = new Player(Console.ReadLine());
+            bool ganhou = false;
             do
             {
                 program.Render();
                 Turn(gameBoard, usedCoordinates);
-                TryWinConditions(gameBoard);
+                TryWinConditions(gameBoard, player1Turn);
                 player1Turn = !player1Turn;
-            } while (true);
+            } while (!ganhou);
         }
 
         void Render()
@@ -129,6 +186,17 @@ namespace JogoDaVeia
                     Console.WriteLine("Valor inválido, utilize o formato   ' numeronumero '");
                 }
             } while (true);
+        }
+
+        static void Victory(string winner)
+        {
+            Console.WriteLine($"*******************{winner} ganhou!******************" +
+                $"\n1-Jogar novamente   2-Sair");
+            string resposta = Console.ReadLine();
+            if (resposta == "1")
+            {
+                RunGame();
+            }
         }
     }
 
